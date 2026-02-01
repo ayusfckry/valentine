@@ -2,53 +2,64 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Valentine💘</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valentine 💘</title>
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, #ffb3c6, #ffd6e0);
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "Georgia", serif;
+  font-family: Georgia, serif;
+  padding: 15px;
 }
 
 .card-box {
   background: white;
-  padding: 30px;
+  padding: 22px;
   border-radius: 25px;
-  width: 380px;
+  width: 100%;
+  max-width: 400px;
   text-align: center;
   box-shadow: 0 25px 50px rgba(0,0,0,0.25);
 }
 
 h2 {
   color: #c9184a;
+  font-size: 1.4rem;
 }
 
 button {
   margin-top: 20px;
-  padding: 12px 30px;
+  padding: 14px 28px;
   border-radius: 30px;
   border: none;
   background: #ff4d6d;
   color: white;
   font-size: 16px;
   cursor: pointer;
+  width: 100%;
 }
 
 button:hover {
   background: #c9184a;
 }
 
+input[type="file"],
 input[type="text"] {
-  margin-top: 10px;
-  padding: 8px;
-  border-radius: 10px;
-  border: 1px solid #ff4d6d;
-  text-align: center;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 14px;
 }
 
 .hidden {
@@ -57,6 +68,8 @@ input[type="text"] {
 
 canvas {
   margin-top: 15px;
+  width: 100%;
+  height: auto;
   border-radius: 15px;
 }
 </style>
@@ -69,7 +82,7 @@ canvas {
   <!-- STEP 1 -->
   <div id="step1">
     <h2>Do you wanna be Ayushi’s Valentine? 💘</h2>
-    <button onclick="start()">YES</button>
+    <button onclick="start()">YES 💖</button>
   </div>
 
   <!-- STEP 2 -->
@@ -81,12 +94,10 @@ canvas {
   <div id="step3" class="hidden">
     <h2>Congratulations lovebirds! 💖</h2>
 
-    <canvas id="canvas" width="340" height="300"></canvas>
+    <canvas id="canvas"></canvas>
 
-    <input type="text" id="nameInput" placeholder="Enter your name 💕" oninput="drawCardBase()">
-    <br>
+    <input type="text" id="nameInput" placeholder="Enter your name 💌">
     <input type="file" accept="image/*" onchange="loadUser(event)">
-    <br>
     <button onclick="download()">Download card ❤️</button>
   </div>
 
@@ -96,13 +107,20 @@ canvas {
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-let userImg = null;
+// Responsive canvas size
+function resizeCanvas() {
+  const width = Math.min(340, window.innerWidth - 80);
+  canvas.width = width;
+  canvas.height = width * 0.65;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
-// Ayushi image
+// Load Ayushi image
 const ayushiImg = new Image();
 ayushiImg.src = "valentine.jpeg";
 
-// Circle crop
+// Helper: circular crop
 function circle(img, x, y, r) {
   ctx.save();
   ctx.beginPath();
@@ -112,58 +130,53 @@ function circle(img, x, y, r) {
   ctx.restore();
 }
 
-// Draw card
+// Draw base card
 function drawCardBase() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Background
   ctx.fillStyle = "#fff0f3";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // Border
   ctx.strokeStyle = "#ff4d6d";
   ctx.lineWidth = 4;
   ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
 
-  // Header text
+  const centerY = canvas.height / 2;
+
+  // Ayushi image
+  circle(ayushiImg, canvas.width * 0.28, centerY, canvas.width * 0.13);
+
+  // Heart
+  ctx.font = `${canvas.width * 0.12}px serif`;
   ctx.textAlign = "center";
-  ctx.fillStyle = "#c9184a";
-  ctx.font = "22px Georgia";
-  ctx.fillText("Happy Valentine’s Day! 💕", canvas.width / 2, 38);
+  ctx.fillText("❤️", canvas.width / 2, centerY + 15);
 
-  ctx.font = "14px Georgia";
-  ctx.fillStyle = "#6a040f";
-  ctx.fillText("Some connections are written in the stars ✨", canvas.width / 2, 60);
-  ctx.fillText("…and some just feel right 💖", canvas.width / 2, 78);
-
-  // Images
-  circle(ayushiImg, 95, 155, 45);
-
-  ctx.font = "42px serif";
-  ctx.fillText("❤️", canvas.width / 2, 170);
-
-  if (userImg) {
-    circle(userImg, 245, 155, 45);
-  }
-
-  // Single-line signature
+  // Footer text
   const name = document.getElementById("nameInput").value || "You";
-  ctx.font = "16px Georgia";
+  ctx.font = `${canvas.width * 0.05}px Georgia`;
   ctx.fillStyle = "#c9184a";
-  ctx.fillText(`From Ayushi & ${name} xoxo 💌`, canvas.width / 2, 235);
+  ctx.fillText(`From Ayushi & ${name} xoxo 💌`, canvas.width / 2, canvas.height - 20);
 }
 
-// Flow
+// FLOW
 function start() {
   step1.classList.add("hidden");
   step2.classList.remove("hidden");
 
-  const texts = ["Checking with Cupid…", "Processing feelings…", "Almost there…"];
-  let i = 0;
+  const texts = [
+    "Checking with Cupid…",
+    "Processing feelings…",
+    "Almost there…"
+  ];
 
+  let i = 0;
   const interval = setInterval(() => {
     loadingText.innerText = texts[i++];
     if (i === texts.length) {
       clearInterval(interval);
-      setTimeout(showCard, 700);
+      setTimeout(showCard, 800);
     }
   }, 700);
 }
@@ -172,14 +185,18 @@ function showCard() {
   step2.classList.add("hidden");
   step3.classList.remove("hidden");
 
-  ayushiImg.complete ? drawCardBase() : ayushiImg.onload = drawCardBase;
+  ayushiImg.onload = drawCardBase;
+  drawCardBase();
 }
 
-// Upload user image
+// User image
 function loadUser(e) {
-  userImg = new Image();
-  userImg.onload = drawCardBase;
-  userImg.src = URL.createObjectURL(e.target.files[0]);
+  const img = new Image();
+  img.onload = () => {
+    drawCardBase();
+    circle(img, canvas.width * 0.72, canvas.height / 2, canvas.width * 0.13);
+  };
+  img.src = URL.createObjectURL(e.target.files[0]);
 }
 
 // Download
